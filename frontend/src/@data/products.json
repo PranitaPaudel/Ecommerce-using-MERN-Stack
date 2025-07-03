@@ -1,0 +1,45 @@
+[
+  {
+    "id": 1,
+    "title": "Organic Garam Masala",
+    "description": "A traditional blend of hand-picked spices. Perfect for curries, soups, and stews. 100% natural and preservative-free.",
+    "price": 5.99,
+    "rating": 4.5,
+    "features": ["Aromatic", "Locally Sourced", "No Artificial Flavors"],
+    "image": "b4f62806-2428-460c-8e3e-c79eb573d1e5.jpg",
+    "reviews": [
+      { "stars": 5, "comment": "Amazing quality and flavor!" },
+      { "stars": 4, "comment": "Really good for curries." }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Himalayan Pink Salt",
+    "description": "Mined from the heart of the Himalayas, this salt is rich in minerals and adds flavor to every dish.",
+    "price": 3.49,
+    "rating": 4.7,
+    "features": ["Mineral Rich", "Unrefined", "Gluten-Free"],
+    "image": "b4f62806-2428-460c-8e3e-c79eb573d1e5.jpg",
+    "reviews": []
+  },
+  {
+    "id": 3,
+    "title": "Turmeric Powder",
+    "description": "Golden yellow turmeric, sourced from organic farms. Great for health and culinary use.",
+    "price": 2.99,
+    "rating": 4.8,
+    "features": ["Anti-inflammatory", "Rich in Curcumin", "Vegan"],
+    "image": "b4f62806-2428-460c-8e3e-c79eb573d1e5.jpg",
+    "reviews": []
+  },
+  {
+    "id": 4,
+    "title": "Coriander Seeds",
+    "description": "Fragrant coriander seeds, sun-dried to preserve freshness and taste. A must-have for spice lovers.",
+    "price": 1.99,
+    "rating": 4.4,
+    "features": ["Sun-dried", "Natural Oils Intact", "Enhances Digestion"],
+    "image": "b4f62806-2428-460c-8e3e-c79eb573d1e5.jpg",
+    "reviews": []
+  }
+]
