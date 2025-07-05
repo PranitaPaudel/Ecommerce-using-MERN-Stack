@@ -1,10 +1,9 @@
-// backend/routes/cartRoutes.js
 import express from "express";
 import db from "../db.js";
 
 const router = express.Router();
 
-// ✅ Add item to cart
+// Add item to cart
 router.post("/add", async (req, res) => {
   const { userId, productId, quantity } = req.body;
 
@@ -19,7 +18,8 @@ router.post("/add", async (req, res) => {
   `;
 
   try {
-    await db.query(query, [userId, productId, quantity]);
+    const [result] = await db.query(query, [userId, productId, quantity]);
+    console.log("Add to cart result:", result);
     res.json({ message: "Item added to cart" });
   } catch (err) {
     console.error("Add to cart error:", err);
@@ -27,11 +27,11 @@ router.post("/add", async (req, res) => {
   }
 });
 
-// ✅ Get cart items
+// Get cart items for a user
 router.get("/:id", async (req, res) => {
   const userId = req.params.id;
   const query = `
-    SELECT c.quantity, p.name, p.price, p.image_url
+    SELECT c.product_id, c.quantity, p.name, p.price, p.image_url
     FROM cart c
     JOIN products p ON c.product_id = p.id
     WHERE c.user_id = ?
@@ -46,12 +46,13 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ✅ Update or remove item
+// Update or remove item in cart
 router.post("/update", async (req, res) => {
   const { userId, productId, quantity } = req.body;
 
-  if (!userId || !productId)
+  if (!userId || !productId) {
     return res.status(400).json({ error: "Missing data" });
+  }
 
   try {
     const [result] = await db.query(
@@ -85,7 +86,8 @@ router.post("/update", async (req, res) => {
     return res.status(500).json({ error: "Failed to update cart" });
   }
 });
-// ✅ Get cart count for a user
+
+// Get cart count for a user
 router.get("/count/:id", async (req, res) => {
   const userId = req.params.id;
 
@@ -102,5 +104,6 @@ router.get("/count/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to get cart count" });
   }
 });
+
 
 export default router;

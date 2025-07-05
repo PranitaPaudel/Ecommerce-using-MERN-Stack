@@ -55,7 +55,7 @@ const ProductCards: React.FC = () => {
               src={product.image_url}
               style={{
                 width: "100%",
-                height: "auto",
+                height: "350px",
                 margin: "0 auto",
                 display: "block",
               }}

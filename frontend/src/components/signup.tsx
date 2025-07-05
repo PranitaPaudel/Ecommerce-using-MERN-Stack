@@ -17,8 +17,21 @@ function Signup() {
     const { name, email, password, confirmPassword } = form;
     const usernameRegex = /^[A-Za-z][A-Za-z0-9]{2,}$/;
     const emailRegex =
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.(com|net|org|edu|gov|io|co|in)$/;
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+      /^[a-zA-Z0-9]+([._%+-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.-]?[a-zA-Z0-9]+)*\.[a-zA-Z]{2,24}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    // Whitelist domains
+    const allowedDomains = [
+      "gmail.com",
+      "hotmail.com",
+      "yahoo.com",
+      "outlook.com",
+      "live.com",
+      "icloud.com",
+      "aol.com",
+      "mail.com",
+    ];
 
     const validationErrors: { [key: string]: string } = {};
 
@@ -29,12 +42,19 @@ function Signup() {
 
     if (!emailRegex.test(email)) {
       validationErrors.email = "Please enter a valid email address.";
+    } else {
+      // Extract domain from email
+      const domain = email.split("@")[1].toLowerCase();
+
+      if (!allowedDomains.includes(domain)) {
+        validationErrors.email = `Email domain '${domain}' is not accepted. Please use a popular email provider.`;
+      }
     }
 
-    // if (!passwordRegex.test(password)) {
-    //   validationErrors.password =
-    //     "Password must be at least 8 characters, including 1 letter and 1 number.";
-    // }
+    if (!passwordRegex.test(password)) {
+      validationErrors.password =
+        "Password must be at least 8 characters, including uppercase and lowercase letter, number and special character.";
+    }
 
     if (password !== confirmPassword) {
       validationErrors.confirmPassword = "Passwords do not match.";
@@ -94,7 +114,13 @@ function Signup() {
                     : field.charAt(0).toUpperCase() + field.slice(1)}
                 </label>
                 <input
-                  type={field.includes("password") ? "password" : "text"}
+                  type={
+                    field === "confirmPassword"
+                      ? "password"
+                      : field.includes("password")
+                      ? "password"
+                      : "text"
+                  }
                   className={`form-control form-control-lg ${
                     errors[field] ? "is-invalid" : ""
                   }`}

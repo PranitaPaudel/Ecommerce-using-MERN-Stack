@@ -7,6 +7,8 @@ import { fileURLToPath } from "url";
 import productRoutes from "./routes/product.js";
 import cartRoutes from "./routes/cart.js";
 import searchRoutes from "./routes/search.js";
+import adminRoutes from "./routes/admin.js";
+import orderRoutes from "./routes/orders.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -26,9 +28,11 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/backend/auth", authRoutes);
+app.use("/backend/admin", adminRoutes);
 app.use("/backend/products", productRoutes);
 app.use("/backend/cart", cartRoutes);
 app.use("/backend/search", searchRoutes);
+app.use("/backend/orders", orderRoutes);
 
 app.listen(4500, () => {
   console.log("Server is running on port 4500");

@@ -1,9 +1,9 @@
 import express from "express";
-import db from "../db.js"; // your mysql connection (promise based)
+import db from "../db.js";
 
 const router = express.Router();
 
-// GET distinct product categories
+// Get distinct product categories (tags)
 router.get("/categories", async (req, res) => {
   const query = "SELECT DISTINCT tag FROM products";
   try {
@@ -27,40 +27,20 @@ router.get("/", async (req, res) => {
   }
 });
 
+// Get product by ID
 router.get("/:id", async (req, res) => {
   const productId = req.params.id;
-
   try {
     const [rows] = await db.query("SELECT * FROM products WHERE id = ?", [
       productId,
     ]);
-
     if (rows.length === 0) {
       return res.status(404).json({ message: "Product not found" });
     }
-
     res.json(rows[0]);
   } catch (err) {
     console.error("Failed to fetch product:", err);
     res.status(500).json({ error: "Failed to fetch product" });
-  }
-});
-
-// (Optional) Add new product - admin only
-router.post("/", async (req, res) => {
-  const { name, description, price, stock, image_url } = req.body;
-  if (!name || !price || !stock) {
-    return res
-      .status(400)
-      .json({ error: "Name, price, and stock are required." });
-  }
-  const query =
-    "INSERT INTO products (name, description, price, stock, image_url) VALUES (?, ?, ?, ?, ?)";
-  try {
-    await db.query(query, [name, description, price, stock, image_url]);
-    res.status(201).json({ message: "Product added successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message || err });
   }
 });
 
@@ -74,6 +54,24 @@ router.get("/category/:tag", async (req, res) => {
   } catch (err) {
     console.error("Failed to fetch category products:", err);
     res.status(500).json({ error: "Failed to fetch products" });
+  }
+});
+
+// Add new product (admin only - you can add auth middleware later)
+router.post("/", async (req, res) => {
+  const { name, description, price, stock, image_url, tag } = req.body;
+  if (!name || price == null || stock == null) {
+    return res
+      .status(400)
+      .json({ error: "Name, price, and stock are required." });
+  }
+  const query =
+    "INSERT INTO products (name, description, price, stock, image_url, tag) VALUES (?, ?, ?, ?, ?, ?)";
+  try {
+    await db.query(query, [name, description, price, stock, image_url, tag]);
+    res.status(201).json({ message: "Product added successfully" });
+  } catch (err) {
+    res.status(500).json({ error: err.message || err });
   }
 });
 

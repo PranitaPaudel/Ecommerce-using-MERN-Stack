@@ -11,12 +11,13 @@ import {
 import Navbar from "../components/navbar";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Trash2 } from "lucide-react";
 
 interface CartItem {
+  product_id: number;
   name: string;
   price: number;
   quantity: number;
-  image_url?: string;
 }
 
 const CartPage: React.FC = () => {
@@ -36,53 +37,28 @@ const CartPage: React.FC = () => {
   useEffect(() => {
     const fetchCartItems = async () => {
       const userRaw = localStorage.getItem("user");
-
       if (!userRaw) {
         alert("You must be logged in to view your cart.");
         navigate("/login");
         return;
       }
-
-      let user;
-      try {
-        user = JSON.parse(userRaw);
-        if (!user.id) throw new Error("User ID missing.");
-      } catch (err) {
-        alert("Corrupted user session. Please log in again.");
-        localStorage.removeItem("user");
-        navigate("/login");
-        return;
-      }
-
+      const user = JSON.parse(userRaw);
       try {
         const res = await axios.get(
-          `http://localhost:4500/backend/cart/${user.id}`,
-          { timeout: 5000 }
+          `http://localhost:4500/backend/cart/${user.id}`
         );
-
-        console.log("Raw API response:", res.data);
-
-        if (!Array.isArray(res.data)) {
-          throw new Error("Unexpected cart format from server.");
-        }
-
         const processed = res.data.map((item: any) => ({
           ...item,
           price: parseFloat(item.price),
           quantity: Number(item.quantity),
         }));
-
-        console.log("Processed cart items:", processed);
-
         setCartItems(processed);
       } catch (err) {
-        console.error("Fetch error:", err);
         setError("Failed to load your cart.");
       } finally {
         setLoading(false);
       }
     };
-
     fetchCartItems();
     detectLocation();
   }, [navigate]);
@@ -102,20 +78,36 @@ const CartPage: React.FC = () => {
       setLocation("Geolocation not supported");
     }
   };
-
-  const handleCheckout = () => {
-    if (!location) {
-      alert("Please allow location access before checking out.");
+  const handleRemove = async (productId: number) => {
+    const user = JSON.parse(localStorage.getItem("user")!);
+    try {
+      await axios.post("http://localhost:4500/backend/cart/update", {
+        userId: user.id,
+        productId,
+        quantity: 0, // removes item
+      });
+      setCartItems(cartItems.filter((item) => item.product_id !== productId));
+    } catch (err) {
+      alert("Failed to remove item from cart.");
+    }
+  };
+  const handleCheckout = async () => {
+    const user = JSON.parse(localStorage.getItem("user")!);
+    if (!location || cartItems.length === 0) {
+      alert("Please ensure location is set and cart is not empty.");
       return;
     }
-
-    if (cartItems.length === 0) {
-      alert("Your cart is empty.");
-      return;
+    try {
+      await axios.post("http://localhost:4500/backend/orders/place", {
+        user_id: user.id,
+        total_amount: total,
+        items: cartItems,
+      });
+      alert("Order placed successfully!");
+      setCartItems([]);
+    } catch (err) {
+      alert("Failed to place order.");
     }
-
-    alert("Proceeding to checkout...");
-    // navigate("/checkout");
   };
 
   if (loading) {
@@ -159,6 +151,7 @@ const CartPage: React.FC = () => {
                   <th>Price</th>
                   <th>Quantity</th>
                   <th>Subtotal</th>
+                  <th>Remove</th>
                 </tr>
               </thead>
               <tbody>
@@ -168,6 +161,15 @@ const CartPage: React.FC = () => {
                     <td>Rs.{item.price}</td>
                     <td>{item.quantity}</td>
                     <td>Rs.{(item.price * item.quantity).toFixed(2)}</td>
+                    <td>
+                      {" "}
+                      <button
+                        onClick={() => handleRemove(item.product_id)}
+                        className="btn btn-sm btn-outline-danger mt-1 d-flex align-items-center gap-1"
+                      >
+                        <Trash2 size={16} /> Remove
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
